@@ -27,7 +27,14 @@ var fb, env, fq, osc;
 				\noise.kr(1000))
 			+ \noisep.kr(6000), fb);
 osc = SinOsc.ar(SinOsc.ar(fq*5/3,0,env**2*10000,fq),0,LPF.ar(env,100));
-			Out.ar(0, \amp.kr(1)*Pan2.ar(osc,Latch.ar(WhiteNoise.ar(1),fb),0.05))})
+			Out.ar(0,
+				\amp.kr(1)
+				* Pan2.ar(osc,Latch.ar(WhiteNoise.ar(1),fb),0.05)
+				* Env.adsr(sustainLevel: 1.0).kr(doneAction: 2,
+					gate: \gate.kr(1)
+				)
+
+		)})
 };).load;
 
 	SynthDef("pebb", { | bus = 50 |
@@ -99,27 +106,23 @@ osc = SinOsc.ar(SinOsc.ar(fq*5/3,0,env**2*10000,fq),0,LPF.ar(env,100));
 
 	).load;
 
-SynthDef("peb4", {
-		var aa, env;
-		env = Env.adsr;
 
+
+
+
+	SynthDef("peb4", {
+		var aa, env;
 		aa = 4/3;
+		env = Env.adsr;
 		Out.ar(0,
 			\amp.kr(1) *
 			EnvGen.kr(env, \gate.kr(1), doneAction: 2) *
 			Pan2.ar(
-			Mix.fill(8, {
-				LPF.ar(
-					Resonz.ar(WhiteNoise.ar(1)
-						**1,aa
-						**Rand(0,20).ceil
-						*50,0.01,10),500,1
-				)
-		}),0))
-	};
-
-	).load;
-
+			Mix.fill(4, {
+				LPF.ar(Resonz.ar(WhiteNoise.ar(1)
+					**1,aa
+					**Rand(0,20).ceil*50,0.01,10),400,1)
+	}),0))};).load;
 
 //: Deconstructed synthdef into 3 separate SynthDefs
 // 11 Sep 2020 16:18
@@ -178,21 +181,21 @@ SynthDef("suna", {	 | out = 0, gate = 1, amp = 1, pos = 0 |
 		* mxb
 	);
 }).load;
-}
+};
 //:
 
 
 
-~af1 = { | bufnum = 0, rate = 1, amp = 0.1 |
-	{
-		\amp.kr(0.2) * PlayBuf.ar(2, ~buffers[bufnum],
+~af1 = { | bufnum = 0, rate = 1, amp = 0.2 |
+	{ | myamp = 0.2 |
+		myamp * PlayBuf.ar(2, ~buffers[bufnum],
 		\rate.kr(rate),
 			Changed.kr(\trig.kr(1)),
 			\pos.kr(0) *
 			BufSampleRate.kr(~buffers[bufnum]),
 			loop: 1
 		)
-	}.play;
+	}.play(args: [myamp: amp]);
 };
 
 ~vib = { | buf = 0, rate = 1, vibrate = 10, width = 100, amp = 1 |
@@ -208,7 +211,7 @@ SynthDef("suna", {	 | out = 0, gate = 1, amp = 1, pos = 0 |
 
 //{ "testing".postln } ! 50;
 
-~uchuu = { | bufnum = 0, rate=1, shift=1.25, amp = 0.8 |
+~uchuu = { | bufnum = 0, rate=1, shift=1.25, amp = 1 |
 	{
 	var a, b, c, d;
 	a = Mix(PlayBuf.ar(2, ~buffers[bufnum], rate, loop:1));
@@ -221,3 +224,5 @@ SynthDef("suna", {	 | out = 0, gate = 1, amp = 1, pos = 0 |
 };
 
 Server.default.boot;
+
+

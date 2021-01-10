@@ -1,10 +1,12 @@
+//: 10 Jan 2021 16:04
+/* trying a redo using sc-hacks
 
-Server.default doWhenBooted: {
+*/
+
+Server.default.waitForBoot({
 	var buffers;
-	buffers = "D:/Audiofile/*".pathMatch.collect({ | path |
-		Buffer.read(Server.default, path)
-	}).postln;
-	~buffers = buffers;
+	//	{ "booted".postln; } ! 50;
+	~buffers = Prefs.loadUserSounds;
 	~buffers do: { | buffer, i |
 		currentEnvironment.put(
 			format("sound%", i + 1).asSymbol,
@@ -178,8 +180,9 @@ SynthDef("suna", {	 | out = 0, gate = 1, amp = 1, pos = 0 |
 		* mxb
 	);
 }).load;
-}
-//:
+
+});
+
 
 
 
@@ -219,5 +222,3 @@ SynthDef("suna", {	 | out = 0, gate = 1, amp = 1, pos = 0 |
 		{ d * amp } ! 2;
 }.play;
 };
-
-Server.default.boot;
